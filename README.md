@@ -1,2 +1,1 @@
-# lsmin
-Least squares with minimum-norm solution
+LSMIN matlab function calculates the minimum-norm solution of the least squares problem A*X = B, whhere A is low-rank matrix. The function LSMIN is faster then the matlab alternative X = pinv(A)*B. Uses the LAPACK functions (S,C,D,Z)EGLSS or (S,C,D,Z)EGLSD.
