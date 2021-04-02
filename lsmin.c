@@ -20,17 +20,18 @@
 
 void ls_double(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-    ptrdiff_t rank, lwork, liwork, lrwork, info = 1;
-    size_t cplx = 0, cplxa = 0, cplxb = 0, dc = 1;
     double *Ap, *Apr, *Bp, *Bpr, *Xpr, *S;
     #if !(MX_HAS_INTERLEAVED_COMPLEX)
-    double *Api,*Bpi,*Xpi;
+    double *Api, *Bpi, *Xpi;
     #endif
     double *work, *rwork, *size, rsize, rcond;
-    size_t ma, na, mb, nb, mina, ldb, element_size = sizeof(double);
-    mwIndex i, j;
+    mwSignedIndex rank, lwork, lrwork, info = 0;
+    mwSignedIndex cplx = 0, cplxa = 0, cplxb = 0, dc = 1;
+    mwSignedIndex ma, na, mb, nb, mina, ldb;
+    mwSignedIndex i, j;
     mxClassID classid = mxDOUBLE_CLASS;
     mxComplexity cplxflag = mxREAL;
+    size_t element_size = sizeof(double);
 
     /* check complex */
     if (mxIsComplex(prhs[0]) || mxIsComplex(prhs[1])) {
@@ -145,11 +146,11 @@ void ls_double(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             mexErrMsgTxt("DEGLSS not successful.");
         }
     }
-    lwork = size[0];
+    lwork = (mwSignedIndex)size[0];
 
     work = mxMalloc(dc*lwork*element_size);
     if (cplx) {
-        lrwork = rsize;
+        lrwork = (mwSignedIndex)rsize;
         if (lrwork < 1){
             /* We compute the size of rwork because DGELSS in older versions
             of LAPACK does not return it on a query call. */
@@ -217,17 +218,18 @@ void ls_double(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 void ls_single(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-    ptrdiff_t rank, lwork, liwork, lrwork, info = 1;
-    size_t cplx = 0, cplxa = 0, cplxb = 0, dc = 1;
     float *Ap, *Apr, *Bp, *Bpr, *Xpr, *S;
     #if !(MX_HAS_INTERLEAVED_COMPLEX)
-    float *Api,*Bpi,*Xpi;
+    float *Api, *Bpi, *Xpi;
     #endif
     float *work, *rwork, *size, rsize, rcond;
-    size_t ma, na, mb, nb, mina, ldb, element_size = sizeof(float);
-    mwIndex i, j;
+    mwSignedIndex rank, lwork, lrwork, info = 0;
+    mwSignedIndex cplx = 0, cplxa = 0, cplxb = 0, dc = 1;
+    mwSignedIndex ma, na, mb, nb, mina, ldb; 
+    mwSignedIndex i, j;
     mxClassID classid = mxSINGLE_CLASS;
     mxComplexity cplxflag = mxREAL;
+    size_t element_size = sizeof(float);
 
     /* check complex */
     if (mxIsComplex(prhs[0]) || mxIsComplex(prhs[1])) {
@@ -310,11 +312,11 @@ void ls_single(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     #endif
 
     if (nrhs == 3) {
-        rcond = mxGetScalar(prhs[2]);
+        rcond = (float)mxGetScalar(prhs[2]);
     }
     else {
         /* use machine precision */
-        rcond = -1.0;
+        rcond = -1.0f;
     }
 
     /* allocate rank and matrix S */
@@ -342,11 +344,11 @@ void ls_single(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             mexErrMsgTxt("SEGLSS not successful.");
         }
     }
-    lwork = size[0];
+    lwork = (mwSignedIndex)size[0];
 
     work = mxMalloc(dc*lwork*element_size);
     if (cplx) {
-        lrwork = rsize;
+        lrwork = (mwSignedIndex)rsize;
         if (lrwork < 1){
             /* We compute the size of rwork because DGELSS in older versions
             of LAPACK does not return it on a query call. */

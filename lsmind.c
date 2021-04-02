@@ -20,14 +20,18 @@
 
 void ls_double(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-    ptrdiff_t rank, *iwork, isize, swork, lwork, liwork, lrwork, nlvl, smlsiz, ipspec, N, info = 1;
-    size_t cplx = 0, cplxa = 0, cplxb = 0, dc = 1;
-    double *Ap, *Apr, *Api, *Bp, *Bpr, *Bpi, *Xpr ,*Xpi, *S;
+    double *Ap, *Apr, *Bp, *Bpr, *Xpr, *S;
+    #if !(MX_HAS_INTERLEAVED_COMPLEX)
+    double *Api, *Bpi, *Xpi;
+    #endif
     double *work, *rwork, *size, rsize, rcond, dminmn, dsmlsizp1, tmp;
-    size_t ma, na, mb, nb, mina, ldb, element_size = sizeof(double);
-    mwIndex i, j;
+    mwSignedIndex rank, *iwork, isize, swork, lwork, liwork, lrwork;
+    mwSignedIndex cplx = 0, cplxa = 0, cplxb = 0, dc = 1, info = 0;
+    mwSignedIndex ma, na, mb, nb, mina, ldb, nlvl, smlsiz, ipspec, N;
+    mwSignedIndex i, j;
     mxClassID classid = mxDOUBLE_CLASS;
     mxComplexity cplxflag = mxREAL;
+    size_t element_size = sizeof(double);
 
     /* check complex */
     if (mxIsComplex(prhs[0]) || mxIsComplex(prhs[1])) {
@@ -142,7 +146,7 @@ void ls_double(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             mexErrMsgTxt("DEGLSD not successful.");
         }
     }
-    lwork = size[0];
+    lwork = (mwSignedIndex)size[0];
 
     /* allocate workspace */
     ipspec = 9;
@@ -158,10 +162,10 @@ void ls_double(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         char *opts = "";
         smlsiz = ilaenv(&ipspec, name, opts, &N, &N, &N, &N, 6, 1);
     }
-    dminmn = mina;
-    dsmlsizp1 = smlsiz + 1;
-    tmp = log(dminmn)/dsmlsizp1/log(2.0) + 1;
-    nlvl = ceil(tmp);
+    dminmn = (double)mina;
+    dsmlsizp1 = (double)smlsiz + 1.0;
+    tmp = log(dminmn)/dsmlsizp1/log(2.0) + 1.0;
+    nlvl = (mwSignedIndex)ceil(tmp);
     if (nlvl < 0) {
         nlvl = 0;
     }
@@ -180,7 +184,7 @@ void ls_double(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (liwork < 1) {
         liwork = 1;
     }
-    iwork = mxMalloc(liwork*sizeof(ptrdiff_t));
+    iwork = mxMalloc(liwork*sizeof(mwSignedIndex));
     if (cplx) {
         lrwork = 10*ldb + 2*ldb*smlsiz + 8*nlvl + 3*smlsiz*nb + (smlsiz+1)*2;
         if (lrwork < 1) {
@@ -247,14 +251,18 @@ void ls_double(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 void ls_single(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-    ptrdiff_t rank, *iwork, isize, swork, lwork, liwork, lrwork, nlvl, smlsiz, ipspec, N, info = 1;
-    size_t cplx = 0, cplxa = 0, cplxb = 0, dc = 1;
-    float *Ap, *Apr, *Api, *Bp, *Bpr, *Bpi, *Xpr ,*Xpi, *S;
+    float *Ap, *Apr, *Bp, *Bpr, *Xpr, *S;
+    #if !(MX_HAS_INTERLEAVED_COMPLEX)
+    float *Api, *Bpi, *Xpi;
+    #endif
     float *work, *rwork, *size, rsize, rcond, dminmn, dsmlsizp1, tmp;
-    size_t ma, na, mb, nb, mina, ldb, element_size = sizeof(float);
-    mwIndex i, j;
+    mwSignedIndex rank, *iwork, isize, swork, lwork, liwork, lrwork;
+    mwSignedIndex cplx = 0, cplxa = 0, cplxb = 0, dc = 1, info = 0;
+    mwSignedIndex ma, na, mb, nb, mina, ldb, nlvl, smlsiz, ipspec, N;
+    mwSignedIndex i, j;
     mxClassID classid = mxSINGLE_CLASS;
     mxComplexity cplxflag = mxREAL;
+    size_t element_size = sizeof(float);
     
     /* check complex */
     if (mxIsComplex(prhs[0]) || mxIsComplex(prhs[1])) {
@@ -337,11 +345,11 @@ void ls_single(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     #endif
 
     if (nrhs == 3) {
-        rcond = mxGetScalar(prhs[2]);
+        rcond = (float)mxGetScalar(prhs[2]);
     }
     else {
         /* use machine precision */
-        rcond = -1.0;
+        rcond = -1.0f;
     }
 
     /* allocate rank and matrix S */
@@ -369,7 +377,7 @@ void ls_single(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             mexErrMsgTxt("SEGLSD not successful.");
         }
     }
-    lwork = size[0];
+    lwork = (mwSignedIndex)size[0];
 
     /* allocate workspace */
     ipspec = 9;
@@ -385,10 +393,10 @@ void ls_single(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         char *opts = "";
         smlsiz = ilaenv(&ipspec, name, opts, &N, &N, &N, &N, 6, 1);
     }
-    dminmn = mina;
-    dsmlsizp1 = smlsiz + 1;
-    tmp = log(dminmn)/dsmlsizp1/log(2.0) + 1;
-    nlvl = ceil(tmp);
+    dminmn = (float)mina;
+    dsmlsizp1 = (float)smlsiz + 1.0f;
+    tmp = logf(dminmn)/dsmlsizp1/logf(2.0f) + 1.0f;
+    nlvl = (mwSignedIndex)ceil(tmp);
     if (nlvl < 0) {
         nlvl = 0;
     }
@@ -407,7 +415,7 @@ void ls_single(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     if (liwork < 1) {
         liwork = 1;
     }
-    iwork = mxMalloc(liwork*sizeof(ptrdiff_t));
+    iwork = mxMalloc(liwork*sizeof(mwSignedIndex));
     if (cplx) {
         lrwork = 10*ldb + 2*ldb*smlsiz + 8*nlvl + 3*smlsiz*nb + (smlsiz+1)*2;
         if (lrwork < 1) {
